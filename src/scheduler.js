@@ -12,11 +12,11 @@ import { getRandomTweet } from "./tweets.js";
  * Optimized for maximum engagement throughout the day
  */
 const SCHEDULE = [
-  { time: "0 9 * * *", label: "09:00 AM" }, // Early morning peak (users starting work/school)
-  { time: "30 10 * * *", label: "10:30 AM" }, // Mid-morning boost (high activity during work hours)
-  { time: "0 13 * * *", label: "01:00 PM" }, // Lunchtime recharge (break time scrolling)
-  { time: "0 15 * * *", label: "03:00 PM" }, // Afternoon reset (post-lunch motivation)
-  { time: "0 18 * * *", label: "06:00 PM" }, // Evening wind-down (end of workday)
+  { time: "30 8 * * *", label: "08:30 AM" }, // Quick AI news/tip - morning engagement
+  { time: "0 10 * * *", label: "10:00 AM" }, // Tool comparison or hack - mid-morning activity
+  { time: "30 12 * * *", label: "12:30 PM" }, // Hot take/question - lunch break scrolling
+  { time: "0 14 * * *", label: "02:00 PM" }, // Short thread starter - afternoon engagement
+  { time: "0 19 * * *", label: "07:00 PM" }, // Evening prediction - peak evening activity
 ];
 
 const TIMEZONE = "Asia/Kolkata";

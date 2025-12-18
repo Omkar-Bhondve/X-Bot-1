@@ -5,6 +5,7 @@
 
 import { TwitterApi } from "twitter-api-v2";
 import dotenv from "dotenv";
+import { notifyTweetPosted, notifyError } from "./telegram.js";
 
 dotenv.config();
 
@@ -48,6 +49,18 @@ export async function postTweet(text) {
     console.log("[SUCCESS] Tweet posted successfully!");
     console.log("[INFO] Tweet ID:", tweet.data.id);
 
+    // Get authenticated user to construct tweet URL
+    try {
+      const user = await rwClient.v2.me();
+      const tweetUrl = `https://twitter.com/${user.data.username}/status/${tweet.data.id}`;
+
+      // Send Telegram notification with tweet URL
+      await notifyTweetPosted(text, tweetUrl);
+    } catch (error) {
+      // If we can't get user info, send notification without URL
+      await notifyTweetPosted(text);
+    }
+
     return tweet;
   } catch (error) {
     console.error("[ERROR] Failed to post tweet:", error.message);
@@ -59,6 +72,9 @@ export async function postTweet(text) {
         JSON.stringify(error.data, null, 2)
       );
     }
+
+    // Send error notification to Telegram
+    await notifyError(error.message);
 
     // Don't crash the bot - just log the error
     return null;

@@ -14,7 +14,7 @@
     "bot",
     "oauth1.0a"
   ],
-  "author": "",
+  "author": "Omkar Bhondve",
   "license": "ISC",
   "dependencies": {
     "twitter-api-v2": "^1.17.2",
