@@ -5,13 +5,14 @@
 
 import cron from "node-cron";
 import { postTweet } from "./twitter.js";
-import { getRandomTweet } from "./tweets.js";
+import { getRandomTweet, markTweetAsPosted } from "./tweets.js";
 
 /**
  * Schedule configuration for Asia/Kolkata timezone
  * Optimized for maximum engagement throughout the day
  */
 const SCHEDULE = [
+  // { time: "35 11 * * *", label: "11:35 AM (TEST)" }, // Added for testing
   { time: "30 8 * * *", label: "08:30 AM" }, // Quick AI news/tip - morning engagement
   { time: "0 10 * * *", label: "10:00 AM" }, // Tool comparison or hack - mid-morning activity
   { time: "30 12 * * *", label: "12:30 PM" }, // Hot take/question - lunch break scrolling
@@ -45,7 +46,18 @@ async function scheduledTweetPost() {
   setTimeout(async () => {
     try {
       const tweetText = getRandomTweet();
-      await postTweet(tweetText);
+
+      if (!tweetText) {
+        console.warn(
+          "[SKIP] No unposted tweets available in the pool. Skipping this slot."
+        );
+        return;
+      }
+
+      const success = await postTweet(tweetText);
+      if (success) {
+        markTweetAsPosted(tweetText);
+      }
     } catch (error) {
       console.error("[ERROR] Scheduled tweet failed:", error.message);
     }

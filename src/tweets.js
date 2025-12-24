@@ -1,7 +1,42 @@
+import fs from "fs";
+import path from "path";
+
+const POSTED_TWEETS_FILE = path.join(process.cwd(), "posted_tweets.json");
+
 /**
- * Tweet Pool
- * Store all tweets here for random selection
+ * Load posted tweets from file
+ * @returns {Set<string>} Set of posted tweet texts
  */
+function loadPostedTweets() {
+  try {
+    if (fs.existsSync(POSTED_TWEETS_FILE)) {
+      const data = fs.readFileSync(POSTED_TWEETS_FILE, "utf8");
+      return new Set(JSON.parse(data));
+    }
+  } catch (error) {
+    console.error("[ERROR] Failed to load posted tweets:", error.message);
+  }
+  return new Set();
+}
+
+/**
+ * Save a tweet to the posted list
+ * @param {string} text - Tweet text to mark as posted
+ */
+export function markTweetAsPosted(text) {
+  try {
+    const posted = loadPostedTweets();
+    posted.add(text);
+    fs.writeFileSync(
+      POSTED_TWEETS_FILE,
+      JSON.stringify(Array.from(posted), null, 2),
+      "utf8"
+    );
+    console.log("[INFO] Tweet marked as posted and saved to persistence.");
+  } catch (error) {
+    console.error("[ERROR] Failed to save posted tweet:", error.message);
+  }
+}
 
 export const tweets = [
   "Investors are shifting focus to Chinese AI companies as fears of an overheated US AI market grow. Tech rivalry is now shaping global capital flows and long-term innovation bets. #AI",
@@ -127,28 +162,24 @@ export const tweets = [
   "Experts predict that within 15 years a quantum computer will be able to break current encryption standards, prompting urgent calls for organizations to begin migrating to post-quantum cryptography technologies now. #CyberSecurity",
 ];
 
-// Track last posted tweet to avoid consecutive duplicates
-let lastPostedIndex = -1;
-
 /**
- * Get a random tweet from the pool
- * Ensures the same tweet is not posted consecutively
- * @returns {string} Random tweet text
+ * Get a random unposted tweet from the pool
+ * @returns {string|null} Random tweet text or null if all posted
  */
 export function getRandomTweet() {
-  if (tweets.length === 0) {
-    throw new Error("Tweet pool is empty");
+  const allTweets = tweets;
+  if (allTweets.length === 0) {
+    throw new Error("Tweet pool is empty in src/tweets.js");
   }
 
-  if (tweets.length === 1) {
-    return tweets[0];
+  const postedSet = loadPostedTweets();
+  const unpostedTweets = allTweets.filter((t) => !postedSet.has(t));
+
+  if (unpostedTweets.length === 0) {
+    console.warn("[WARNING] All tweets in the pool have been posted!");
+    return null;
   }
 
-  let randomIndex;
-  do {
-    randomIndex = Math.floor(Math.random() * tweets.length);
-  } while (randomIndex === lastPostedIndex);
-
-  lastPostedIndex = randomIndex;
-  return tweets[randomIndex];
+  const randomIndex = Math.floor(Math.random() * unpostedTweets.length);
+  return unpostedTweets[randomIndex];
 }

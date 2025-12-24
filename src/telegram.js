@@ -72,9 +72,10 @@ export async function sendTelegramNotification(message) {
 /**
  * Format and send tweet success notification
  * @param {string} tweetText - The tweet content
+ * @param {string} username - The X account username
  * @param {string} tweetUrl - URL to the tweet (optional)
  */
-export async function notifyTweetPosted(tweetText, tweetUrl = null) {
+export async function notifyTweetPosted(tweetText, username, tweetUrl = null) {
   const timestamp = new Date().toLocaleString("en-IN", {
     timeZone: "Asia/Kolkata",
     dateStyle: "medium",
@@ -82,6 +83,7 @@ export async function notifyTweetPosted(tweetText, tweetUrl = null) {
   });
 
   let message = `✅ <b>Tweet Posted Successfully!</b>\n\n`;
+  message += `👤 <b>Account:</b> @${username}\n`;
   message += `📝 <b>Content:</b>\n${tweetText}\n\n`;
   message += `⏰ <b>Time:</b> ${timestamp} (IST)\n`;
   message += `🤖 <b>Status:</b> Published`;

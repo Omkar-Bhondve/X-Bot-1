@@ -49,16 +49,18 @@ export async function postTweet(text) {
     console.log("[SUCCESS] Tweet posted successfully!");
     console.log("[INFO] Tweet ID:", tweet.data.id);
 
-    // Get authenticated user to construct tweet URL
+    // Get authenticated user to construct tweet URL and show account in notification
+    let username = "X Account";
     try {
       const user = await rwClient.v2.me();
-      const tweetUrl = `https://twitter.com/${user.data.username}/status/${tweet.data.id}`;
+      username = user.data.username;
+      const tweetUrl = `https://twitter.com/${username}/status/${tweet.data.id}`;
 
-      // Send Telegram notification with tweet URL
-      await notifyTweetPosted(text, tweetUrl);
+      // Send Telegram notification with account and tweet URL
+      await notifyTweetPosted(text, username, tweetUrl);
     } catch (error) {
-      // If we can't get user info, send notification without URL
-      await notifyTweetPosted(text);
+      // If we can't get user info, send notification with generic account or what we have
+      await notifyTweetPosted(text, username);
     }
 
     return tweet;
